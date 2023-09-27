@@ -1,15 +1,15 @@
-import logging
 import re
 from urllib.parse import urljoin
 
 import requests
+import structlog
 from bs4 import BeautifulSoup
 
 from zeitdl.core.zeitonline.constants import BASE_URL_EPAPER
 from zeitdl.exceptions import IssueNotFoundError
 from zeitdl.types import Issue
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
 
 def get_issue_page_url(sess: requests.Session, issue: Issue) -> str:
@@ -35,7 +35,7 @@ def get_issue_page_url(sess: requests.Session, issue: Issue) -> str:
     # The issue needs to be a 0 padded number with 2 digits.
     params = {"issue": f"{issue.number:02d}", "year": issue.year, "title": "diezeit"}
 
-    logger.debug(f"Getting issue page url; {issue=}; {url=}; {params=}.")
+    logger.debug(f"Getting issue page url", issue=issue, url=url, params=params)
     res = sess.get(url=url, params=params)
 
     # There will be many 'results'. Each result has an img with the alternative text
@@ -44,9 +44,7 @@ def get_issue_page_url(sess: requests.Session, issue: Issue) -> str:
     alt_text = f"DIE ZEIT {issue.number:02d}/{issue.year:04d}"
     soup = BeautifulSoup(res.content, "html.parser")
 
-    logger.debug(
-        f"Searching for img element with attribute {alt_text=} in result soup."
-    )
+    logger.debug(f"Searching img element", alt_text=alt_text)
     results = soup.find_all("img", alt=alt_text)
 
     if len(results) > 1:
@@ -59,7 +57,7 @@ def get_issue_page_url(sess: requests.Session, issue: Issue) -> str:
             f"No result found in page for img element with attribute {alt_text=}."
         )
     issue_page_url = results[0].parent.attrs["href"]
-    logger.debug(f"Found issue page url; {issue_page_url=}.")
+    logger.debug(f"Found issue page url", issue_page_url=issue_page_url)
     return urljoin(BASE_URL_EPAPER, issue_page_url)
 
 
@@ -84,5 +82,5 @@ def get_download_url(sess: requests.Session, issue_page_url: str):
     # download URL, so I'm just going to take the first match.
     element = soup.find_all(text=re.compile("GESAMT"))[0].parent
     href = element.attrs["href"]
-    logger.debug(f"Found download url; download_url={href}.")
+    logger.debug(f"Found download url", download_url=href)
     return urljoin(BASE_URL_EPAPER, href)

@@ -1,10 +1,10 @@
-import logging
 import re
 from pathlib import Path
 
 import requests
+import structlog
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
 
 def download_file(
@@ -41,7 +41,7 @@ def download_file(
         path = destination / filename
 
         if not destination.is_dir():
-            logger.debug(f"Creating destination directory {destination}.")
+            logger.debug(f"Creating destination directory", destination=destination)
             destination.mkdir(parents=False)
 
         if path.is_file():
@@ -51,9 +51,7 @@ def download_file(
                 logger.info(f"File {path} already exists, skipping download.")
                 return path
 
-        logger.debug(
-            f"Starting with content download from URL '{url:s}' to file '{path}'."
-        )
+        logger.debug(f"Downloading content", url=url, path=path)
 
         with path.open("wb") as f:
             for chunk in res.iter_content(chunk_size=8192):

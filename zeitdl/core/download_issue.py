@@ -1,13 +1,13 @@
-import logging
 from pathlib import Path
 
 import requests
+import structlog
 
 from zeitdl import service
 from zeitdl.core import zeitonline
 from zeitdl.types import Issue
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
 
 def download_issue(sess: requests.Session, issue: Issue, destination: Path):
@@ -23,7 +23,7 @@ def download_issue(sess: requests.Session, issue: Issue, destination: Path):
     Returns:
         path to the downloaded file
     """
-    logger.info(f"Downloading {issue=} with {destination=}.")
+    logger.info(f"Downloading issue", issue=issue, destination=destination)
     issue_page_url = zeitonline.get_issue_page_url(sess, issue)
     download_url = zeitonline.get_download_url(sess, issue_page_url)
     return service.download_file(sess, download_url, destination, overwrite=False)
