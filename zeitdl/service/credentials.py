@@ -1,10 +1,11 @@
 import json
-import logging
 from pathlib import Path
+
+import structlog
 
 from zeitdl.types import ZeitOnlineCredentials
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
 
 def load_credentials_from_file(file: Path) -> ZeitOnlineCredentials:
@@ -26,7 +27,7 @@ def load_credentials_from_file(file: Path) -> ZeitOnlineCredentials:
     Returns:
         initialized ZeitOnlineCredentials dataclass
     """
-    logger.debug(f"Loading ZeitOnline credentials from file {file}.")
+    logger.debug(f"Loading ZeitOnline credentials", file=file)
     with open(file, "r", encoding="utf-8") as f:
         data = json.load(f)
     return ZeitOnlineCredentials(**data)

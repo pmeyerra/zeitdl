@@ -1,14 +1,14 @@
-import logging
 from urllib.parse import urljoin
 
 import requests
+import structlog
 from bs4 import BeautifulSoup
 
 from zeitdl.core.zeitonline.constants import BASE_URL_EPAPER, HEADERS, LOGIN_URL
 from zeitdl.exceptions import ZeitOnlineLoginError
 from zeitdl.types import ZeitOnlineCredentials
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
 
 def login(
@@ -25,7 +25,7 @@ def login(
         sess: stateful `requests.Session` object which will be logged in
         credentials: credentials used for authentication
     """
-    logger.debug("Making GET request to login URL to retrieve CSRF Token.")
+    logger.debug("Making GET request to login URL to retrieve CSRF Token")
     res = sess.get(LOGIN_URL)
     soup = BeautifulSoup(res.content, "html.parser")
     csrf_token = soup.find("input", attrs={"name": "csrf_token"})["value"]
@@ -35,10 +35,6 @@ def login(
         "pass": credentials.password,
         "csrf_token": csrf_token,
     }
-    logger.debug(
-        "CSRF token extracted from response. "
-        "Now POSTing to login URL with login credentials."
-    )
     res = sess.post(LOGIN_URL, data=payload, headers=HEADERS)
     res.raise_for_status()
 
@@ -56,6 +52,6 @@ def login(
             f"was '{res.url}', which does not match the expected "
             f"url '{epaper_diezeit_url}'."
         )
-    logger.debug(f"Successfully logged into Zeit Online. Response URL is '{res.url}'.")
+    logger.debug(f"Successfully logged into Zeit Online", response_url=res.url)
 
     return sess

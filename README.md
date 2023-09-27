@@ -10,7 +10,6 @@ With the code in this repo, you can do so programmatically.
 Below is an example of how to use this package to download issues of *Die Zeit* as PDF.
 
 ```python
-import logging
 from pathlib import Path
 
 from zeitdl.core import download_issue, initialize_session
@@ -18,8 +17,6 @@ from zeitdl.types import Issue
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-
     # Generate list of issues to download. Download issues 1 through 20 from year 2022.
     year = 2023
     issue_numbers = list(range(1, 21))
