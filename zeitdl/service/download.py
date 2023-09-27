@@ -8,10 +8,12 @@ logger = structlog.get_logger()
 
 
 def download_file(
-    sess: requests.Session, url: str, destination: Path, overwrite: bool = False
-):
-    """
-    Download a file from the internet.
+    sess: requests.Session,
+    url: str,
+    destination: Path,
+    overwrite: bool = False,
+) -> Path:
+    """Download a file from the internet.
 
     If the file already exists and `overwrite` is false, skip download. If the
     `destination` directory does not exist, it will be created.
@@ -34,14 +36,15 @@ def download_file(
         matches = re.findall("filename=(.+)", res.headers["Content-Disposition"])
 
         if not matches:
-            raise RuntimeError("Could not extract filename from response headers.")
+            msg = "Could not extract filename from response headers."
+            raise RuntimeError(msg)
 
         filename = matches[0].strip('"')
 
         path = destination / filename
 
         if not destination.is_dir():
-            logger.debug(f"Creating destination directory", destination=destination)
+            logger.debug("Creating destination directory", destination=destination)
             destination.mkdir(parents=False)
 
         if path.is_file():
@@ -51,7 +54,7 @@ def download_file(
                 logger.info(f"File {path} already exists, skipping download.")
                 return path
 
-        logger.debug(f"Downloading content", url=url, path=path)
+        logger.debug("Downloading content", url=url, path=path)
 
         with path.open("wb") as f:
             for chunk in res.iter_content(chunk_size=8192):

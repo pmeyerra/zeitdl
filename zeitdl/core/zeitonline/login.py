@@ -12,10 +12,10 @@ logger = structlog.get_logger()
 
 
 def login(
-    sess: requests.Session, credentials: ZeitOnlineCredentials
+    sess: requests.Session,
+    credentials: ZeitOnlineCredentials,
 ) -> requests.Session:
-    """
-    Log into Zeit Online.
+    """Log into Zeit Online.
 
     The login procedure involved making a GET request to the login URL.
     The CSRF token will be extracted from the response and included in the payload to
@@ -47,11 +47,12 @@ def login(
     # Login succeeded if the response URL is the same as the request URL.
     # This means we have successfully accessed the epaper page we want.
     if res.url != epaper_diezeit_url:
-        raise ZeitOnlineLoginError(
-            f"Login to Zeit Online seems to have failed. The response URL "
-            f"was '{res.url}', which does not match the expected "
-            f"url '{epaper_diezeit_url}'."
+        msg = (
+            f"Login to Zeit Online seems to have failed. "
+            f"The response URL was '{res.url}', "
+            f"which does not match the expected url '{epaper_diezeit_url}'."
         )
-    logger.debug(f"Successfully logged into Zeit Online", response_url=res.url)
+        raise ZeitOnlineLoginError(msg)
+    logger.debug("Successfully logged into Zeit Online", response_url=res.url)
 
     return sess
