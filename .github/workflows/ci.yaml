@@ -4,7 +4,7 @@ on:
   - pull_request
 
 jobs:
-  pylint:
+  zeitdl-pre-commit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -15,10 +15,10 @@ jobs:
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
         with:
-          version: 1.3.2
+          version: 1.6.1
 
-      - name: Install package
-        run: poetry install
+      - name: Install pipx
+        run: pip install --upgrade pipx
 
-      - name: Run pylint
-        run: poetry run pylint zeitdl
+      - name: Run pre-commit
+        run: pipx run pre-commit run --all-files

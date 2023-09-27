@@ -13,9 +13,9 @@ logger = structlog.get_logger()
 
 
 def get_issue_page_url(sess: requests.Session, issue: Issue) -> str:
-    """
-    Each issue has a page from which it can be read/downloaded. This function
-    finds the URL of this page.
+    """Each issue has a page from which it can be read/downloaded.
+
+    This function finds the URL of this page.
 
     For this, we make a query the `abo/diezeit` search page with the number and year of
     the issue we want. We then need to parse the response. That's because the
@@ -35,7 +35,7 @@ def get_issue_page_url(sess: requests.Session, issue: Issue) -> str:
     # The issue needs to be a 0 padded number with 2 digits.
     params = {"issue": f"{issue.number:02d}", "year": issue.year, "title": "diezeit"}
 
-    logger.debug(f"Getting issue page url", issue=issue, url=url, params=params)
+    logger.debug("Getting issue page url", issue=issue, url=url, params=params)
     res = sess.get(url=url, params=params)
 
     # There will be many 'results'. Each result has an img with the alternative text
@@ -44,32 +44,37 @@ def get_issue_page_url(sess: requests.Session, issue: Issue) -> str:
     alt_text = f"DIE ZEIT {issue.number:02d}/{issue.year:04d}"
     soup = BeautifulSoup(res.content, "html.parser")
 
-    logger.debug(f"Searching img element", alt_text=alt_text)
+    logger.debug("Searching img element", alt_text=alt_text)
     results = soup.find_all("img", alt=alt_text)
 
     if len(results) > 1:
-        raise IssueNotFoundError(
-            f"More than one result found in page for img "
-            f"element with attribute {alt_text=}."
+        msg = (
+            f"More than one result found in page "
+            f"for img element with attribute {alt_text=}."
         )
+        raise IssueNotFoundError(msg)
     if not results:
+        msg = f"No result found in page for img element with attribute {alt_text=}."
         raise IssueNotFoundError(
-            f"No result found in page for img element with attribute {alt_text=}."
+            msg,
         )
     issue_page_url = results[0].parent.attrs["href"]
-    logger.debug(f"Found issue page url", issue_page_url=issue_page_url)
+    logger.debug("Found issue page url", issue_page_url=issue_page_url)
     return urljoin(BASE_URL_EPAPER, issue_page_url)
 
 
-def get_download_url(sess: requests.Session, issue_page_url: str):
-    """
-    Find the issue download URL. This is done by parsing the content of the issue page.
+def get_download_url(sess: requests.Session, issue_page_url: str) -> str:
+    """Find the issue download URL.
+
+    This is done by parsing the content of the issue page.
 
     Args:
+    ----
         sess: `request.Session` object that must contain login cookies
         issue_page_url: URL of the issue page
 
     Returns:
+    -------
         issue download URL
     """
     res = sess.get(issue_page_url)
@@ -82,5 +87,5 @@ def get_download_url(sess: requests.Session, issue_page_url: str):
     # download URL, so I'm just going to take the first match.
     element = soup.find_all(text=re.compile("GESAMT"))[0].parent
     href = element.attrs["href"]
-    logger.debug(f"Found download url", download_url=href)
+    logger.debug("Found download url", download_url=href)
     return urljoin(BASE_URL_EPAPER, href)

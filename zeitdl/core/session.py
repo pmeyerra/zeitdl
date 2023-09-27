@@ -7,8 +7,7 @@ from zeitdl.core import zeitonline
 
 
 def initialize_session(credential_file: Path) -> requests.Session:
-    """
-    Initialize a session. This includes login to Zeit Online.
+    """Initialize a session. This includes login to Zeit Online.
 
     Args:
         credential_file: path to a JSON file containing the credentials to log in to

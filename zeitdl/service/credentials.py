@@ -9,8 +9,7 @@ logger = structlog.get_logger()
 
 
 def load_credentials_from_file(file: Path) -> ZeitOnlineCredentials:
-    """
-    Load Zeit Online credentials from a JSON file.
+    """Load Zeit Online credentials from a JSON file.
 
     The credential file must look like this:
 
@@ -27,7 +26,7 @@ def load_credentials_from_file(file: Path) -> ZeitOnlineCredentials:
     Returns:
         initialized ZeitOnlineCredentials dataclass
     """
-    logger.debug(f"Loading ZeitOnline credentials", file=file)
-    with open(file, "r", encoding="utf-8") as f:
+    logger.debug("Loading ZeitOnline credentials", file=file)
+    with file.open(encoding="utf-8") as f:
         data = json.load(f)
     return ZeitOnlineCredentials(**data)
