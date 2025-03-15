@@ -18,11 +18,13 @@ dependencies = [
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
-[tool.black]
-line-length = 88
-target-version = ["py311"]
-
 [tool.ruff]
+line-length = 88
+target-version = "py311"
+fix = true
+show-fixes = true
+
+[tool.ruff.lint]
 select = ["ALL"]
 ignore = [
     "D100", # Missing docstring in public module
@@ -31,18 +33,12 @@ ignore = [
     "G004"  # Logging statement uses f-string
 ]
 
-fix = true
 fixable = ["ALL"]
 unfixable = []
-show-fixes = true
 
-line-length = 88
-target-version = "py311"
 
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-ignore-init-module-imports = true
-
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
