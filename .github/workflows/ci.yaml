@@ -7,18 +7,10 @@ jobs:
   zeitdl-pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
+      - uses: actions/checkout@v4
 
-      - name: Install and configure Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 1.6.1
-
-      - name: Install pipx
-        run: pip install --upgrade pipx
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
 
       - name: Run pre-commit
-        run: pipx run pre-commit run --all-files
+        run: uvx pre-commit run --all-files
