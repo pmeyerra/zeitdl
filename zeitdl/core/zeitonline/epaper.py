@@ -1,7 +1,7 @@
 import re
 from urllib.parse import urljoin
 
-import requests
+import httpx
 import structlog
 from bs4 import BeautifulSoup
 
@@ -12,7 +12,7 @@ from zeitdl.types import Issue
 logger = structlog.get_logger()
 
 
-def get_issue_page_url(sess: requests.Session, issue: Issue) -> str:
+def get_issue_page_url(client: httpx.Client, issue: Issue) -> str:
     """Each issue has a page from which it can be read/downloaded.
 
     This function finds the URL of this page.
@@ -22,7 +22,7 @@ def get_issue_page_url(sess: requests.Session, issue: Issue) -> str:
     response contains a few recent issues in addition to the result of the search.
 
     Args:
-        sess: `request.Session` object that must contain login cookies
+        client: `httpx.Client` object that must contain login cookies
         issue: `Issue` metadata
 
     Returns:
@@ -36,11 +36,11 @@ def get_issue_page_url(sess: requests.Session, issue: Issue) -> str:
     params = {"issue": f"{issue.number:02d}", "year": issue.year, "title": "diezeit"}
 
     logger.debug("Getting issue page url", issue=issue, url=url, params=params)
-    res = sess.get(url=url, params=params)
+    res = client.get(url, params=params)
 
     # There will be many 'results'. Each result has an img with the alternative text
     # being the issue number and year. We'll use that to find the link to the
-    # correct isseu page.
+    # correct issue page.
     alt_text = f"DIE ZEIT {issue.number:02d}/{issue.year:04d}"
     soup = BeautifulSoup(res.content, "html.parser")
 
@@ -63,21 +63,21 @@ def get_issue_page_url(sess: requests.Session, issue: Issue) -> str:
     return urljoin(BASE_URL_EPAPER, issue_page_url)
 
 
-def get_download_url(sess: requests.Session, issue_page_url: str) -> str:
+def get_download_url(client: httpx.Client, issue_page_url: str) -> str:
     """Find the issue download URL.
 
     This is done by parsing the content of the issue page.
 
     Args:
     ----
-        sess: `request.Session` object that must contain login cookies
+        client: `httpx.Client` object that must contain login cookies
         issue_page_url: URL of the issue page
 
     Returns:
     -------
         issue download URL
     """
-    res = sess.get(issue_page_url)
+    res = client.get(issue_page_url)
 
     soup = BeautifulSoup(res.content, "html.parser")
 

@@ -1,14 +1,14 @@
 import re
 from pathlib import Path
 
-import requests
+import httpx
 import structlog
 
 logger = structlog.get_logger()
 
 
 def download_file(
-    sess: requests.Session,
+    sess: httpx.Client,
     url: str,
     destination: Path,
     overwrite: bool = False,
@@ -19,7 +19,7 @@ def download_file(
     `destination` directory does not exist, it will be created.
 
     Args:
-        sess: ``requests.Session`` session to use
+        sess: ``httpx.Client`` session to use
         url: download URL
         destination: destination folder into which the downloaded content will be saved.
             The filename will be extracted from the response headers.
@@ -29,7 +29,7 @@ def download_file(
     Returns:
         path to the downloaded file
     """
-    with sess.get(url, stream=True) as res:
+    with sess.stream("GET", url) as res:
         res.raise_for_status()
 
         # Extract filename from headers.
@@ -57,6 +57,6 @@ def download_file(
         logger.debug("Downloading content", url=url, path=path)
 
         with path.open("wb") as f:
-            for chunk in res.iter_content(chunk_size=8192):
+            for chunk in res.iter_bytes(chunk_size=8192):
                 f.write(chunk)
     return path

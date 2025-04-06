@@ -128,4 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-local/
+# Default credentials file for zeitdl
+credentials.json
