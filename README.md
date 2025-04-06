@@ -12,30 +12,29 @@ Below is an example of how to use this package to download issues of *Die Zeit* 
 ```python
 from pathlib import Path
 
-from zeitdl.core import download_issue, initialize_session
+from zeitdl.core import tasks
 from zeitdl.types import Issue
-
 
 if __name__ == "__main__":
     # Generate list of issues to download. Download issues 1 through 20 from year 2022.
-    year = 2023
-    issue_numbers = list(range(1, 21))
+    year = 2025
+    issue_numbers = list(range(1, 2))
     issues = [Issue(num, year) for num in issue_numbers]
 
     # A credential file containing the credentials to log into Zeit Online must
     # be created.
-    credential_file = Path("/path/to/credentials.json")
+    credential_file = Path("credentials.json")
     assert credential_file.is_file(), f"Credential file {credential_file} not found."
 
     # Save the downloaded files here.
-    destination = Path("/path/to/destination/2022")
+    destination = Path(".").resolve()
 
     # Initialize session, this will perform login to Zeit Online.
-    sess = initialize_session(credential_file)
+    client = tasks.initialize_session(credential_file)
 
     # Download all the issues you want :)
     for issue in issues:
-        download_issue(sess, issue, destination)
+        tasks.download_issue(client, issue, destination)
 ```
 
 ## Authentication
