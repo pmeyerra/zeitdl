@@ -5,44 +5,33 @@ newspaper *Die Zeit*.
 
 With the code in this repo, you can do so programmatically.
 
+## Installation
+
+Clone this repository and install it using [`uv`](https://docs.astral.sh/uv/#uv).
+
+```shell
+uv sync
+```
+
 ## Usage
 
 Below is an example of how to use this package to download issues of *Die Zeit* as PDF.
 
-```python
-from pathlib import Path
-
-from zeitdl.core import tasks
-from zeitdl.types import Issue
-
-if __name__ == "__main__":
-    # Generate list of issues to download. Download issues 1 through 20 from year 2022.
-    year = 2025
-    issue_numbers = list(range(1, 2))
-    issues = [Issue(num, year) for num in issue_numbers]
-
-    # A credential file containing the credentials to log into Zeit Online must
-    # be created.
-    credential_file = Path("credentials.json")
-    assert credential_file.is_file(), f"Credential file {credential_file} not found."
-
-    # Save the downloaded files here.
-    destination = Path(".").resolve()
-
-    # Initialize session, this will perform login to Zeit Online.
-    client = tasks.initialize_session(credential_file)
-
-    # Download all the issues you want :)
-    for issue in issues:
-        tasks.download_issue(client, issue, destination)
+```shell
+zeitdl \
+  --year 2025 \
+  --start-issue 1 \
+  --end-issue 10 \
+  --credentials "credentials.json" \
+  --destination "DieZeit2025/"
 ```
 
 ## Authentication
 
 Valid credentials for [Zeit Online](https://meine.zeit.de/) are required.
 
-They must be saved in a JSON file and provided to the `initialize_session` function.
-An example of what the JSOn file must look like is shown below.
+They must be saved in a JSON file and provided to the `zeitdl` script.
+An example of what the JSON file must look like is shown below.
 
 ```json
 {

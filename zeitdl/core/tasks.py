@@ -27,6 +27,7 @@ def download_issue(client: httpx.Client, issue: Issue, destination: Path) -> Pat
     download_url = zeitonline.get_download_url(client, issue_page_url)
     return service.download_file(client, download_url, destination, overwrite=False)
 
+
 def initialize_session(credential_file: Path) -> httpx.Client:
     """Initialize a session to Zeit Online and authenticate.
 
