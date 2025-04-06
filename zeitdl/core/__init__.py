@@ -1,3 +1,3 @@
-from . import zeitonline, tasks
+from . import tasks, zeitonline
 
-__all__ = ["zeitonline", "tasks"]
+__all__ = ["tasks", "zeitonline"]
